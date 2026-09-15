@@ -58,6 +58,16 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+When running these commands from the repository root, select this workspace explicitly:
+
+```bash
+npm run test -w packages/services/api
+npm run test:e2e -w packages/services/api
+npm run test:cov -w packages/services/api
+```
+
+The API unit tests are located under `src/` and use the `*.spec.ts` naming pattern. The end-to-end Jest configuration is in `test/jest-e2e.json`.
+
 ## Support
 
 Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
