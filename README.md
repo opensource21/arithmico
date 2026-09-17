@@ -22,73 +22,83 @@ This repository contains the source code for the Arithmico Engine and the follow
 
 # Build Instructions
 
-1. Go to the project folder and run
+The repository is an npm workspace. There are no build scripts in the root `package.json`; every build runs in a workspace, selected with `-w <workspace-name>`. The workspace names are `engine`, `calculator`, `documentation`, `blog`, `backoffice` and `api`.
+
+1. Install the dependencies from the project root
 
 ```
 npm install
 ```
 
-2. Build the Arithmico Engine by running. **Important** You must define the features with `export ARITHMICO_FEATURES=$(cat ./packages/libraries/engine/features.json)` 
+2. Build the Arithmico Engine with all features
 
 ```
-npm run build:engine
-```
-or use for all features
-```
-npm run build:full-features
+npm run build:full-features -w engine
 ```
 
+**Important:** the engine is compiled with the feature set from the environment variable `ARITHMICO_FEATURES`. `npm ci` triggers an engine build through the engine's `install` script, but without that variable, which produces an engine with every type, operator, function, method and constant disabled. Always run the command above (or the one below) before building an application.
 
-3. Build one a web application by running one of the following commands
-
-- Build Arithmico Calc
-
-```
-npm run build:calc
-```
-
-- Build Arithmico Docs
+To build a reduced feature set, pass your own subset of `packages/libraries/engine/features.json`:
 
 ```
-npm run build:docs
+ARITHMICO_FEATURES="$(cat ./my-features.json)" npm run build -w engine
 ```
 
-- Build Arithmico Blog
+3. Build a web application
+
+- Arithmico Calc
 
 ```
-npm run build:blog
+npm run build -w calculator
 ```
 
-- Build Arithmico Config
+- Arithmico Docs
 
 ```
-npm run build:config
+npm run build -w documentation
 ```
 
-4. Serve the files under `<project-root>/packages/<app-name>/dist/*` on a web server
-5. For local testing you can use `npm run start:calc` or create the offline-version with `chuccdhtttehugjbeuuvnrdehfugfhch
-6. `
+- Arithmico Blog
+
+```
+npm run build -w blog
+```
+
+- Arithmico Backoffice
+
+```
+npm run build -w backoffice
+```
+
+4. Serve the files from `packages/applications/<app-name>/dist/` on a web server. The application directories are `calculator`, `documentation`, `blog` and `backoffice`.
+
+5. For local development, start a Vite dev server instead, for example
+
+```
+npm run start -w calculator
+```
 
 ## Build the offline version locally
 
-The offline frontend can be built locally from the repository root after installing the dependencies:
+The offline frontend can be built locally from the repository root after installing the dependencies and building the engine:
 
 ```
+export ARITHMICO_FEATURES=$(cat ./packages/libraries/engine/features.json) 
 npm ci
-npm run build:offline -w packages/applications/calculator
+npm run build:offline -w calculator
 ```
 
 This creates the static offline frontend in `packages/applications/calculator/dist/`. To create the native Tauri installer instead, Rust and the platform-specific Tauri build dependencies must also be installed. Run:
 
 ```
-VITE_OFFLINE_MODE=true NODE_ENV=production npm run tauri build -w packages/applications/calculator
+VITE_OFFLINE_MODE=true NODE_ENV=production npm run tauri build -w calculator
 ```
 
 The generated installer is placed below `packages/applications/calculator/src-tauri/target/release/bundle/`. Depending on the operating system, the configured bundle targets are `.deb` on Linux, `.dmg` on macOS, and `.exe` on Windows. The exact native dependencies are platform-specific; the GitHub Actions workflow documents the additional Ubuntu packages and Rust targets used by CI in `.github/workflows/build-offline-version.yml`.
 
 # Development and Testing
 
-The repository is an npm workspace. Run commands from the project root unless a command explicitly uses `-w` to select a workspace.
+All commands are run from the project root. `-w <workspace-name>` selects the workspace the script belongs to.
 
 ## Install dependencies
 
@@ -109,15 +119,15 @@ npx --no nx run-many -t test
 Run tests for a single workspace with:
 
 ```
-npm run test -w packages/libraries/engine
-npm run test -w packages/services/api
+npm run test -w engine
+npm run test -w api
 ```
 
 The API also provides end-to-end and coverage commands:
 
 ```
-npm run test:e2e -w packages/services/api
-npm run test:cov -w packages/services/api
+npm run test:e2e -w api
+npm run test:cov -w api
 ```
 
 The frontend workspaces currently have placeholder test scripts that exit successfully without running tests. The current automated test coverage is primarily in the Engine and API workspaces.
